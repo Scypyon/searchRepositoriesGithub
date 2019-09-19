@@ -1,25 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+// @ts-ignore: Unreachable code error
+import { DataTable } from 'react-data-components';
+
+import { fetchResults } from "./store/searchModule/searchAction"
+
+import 'react-data-components/css/table-twbs.css';
 
 const App: React.FC = () => {
+
+  const [query, setQuery] = useState();
+  const store = useSelector((state: any) => state.search);
+  const dispatch = useDispatch();
+
+  const showResults = () => {
+    dispatch(fetchResults(query));
+  }
+
+  var columns = [
+    { title: 'Name', prop: 'name' },
+    { title: 'Owner', prop: 'owner' },
+    { title: 'Stars', prop: 'stars' },
+    { title: 'Created At', prop: 'createdAt' }
+  ];
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <input onChange={e => setQuery(e.target.value)} type="text" />
+      <button onClick={showResults}>Pokaż Wyniki</button>
+      {
+        store.results ?
+          < DataTable
+            className="container"
+            columns={columns}
+            initialData={store.results}
+            initialPageLength={5}
+            initialSortBy={{ prop: 'stars', order: 'descending' }}
+            pageLengthOptions={[5, 20, 50]}
+          />
+          : <div>Wczytuję...</div>
+      }
+    </>
   );
 }
 
